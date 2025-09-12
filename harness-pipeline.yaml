@@ -1,15 +1,23 @@
 pipeline:
   name: harness-pipeline
   identifier: harness_pipeline
-  projectIdentifier: default_project         # 🔹 replace with your real projectIdentifier
+  projectIdentifier: default_project        
   orgIdentifier: default
   tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: harsh43580           
+        repoName: Harness-Intigration      
+        build: <+input>                     
+
   stages:
     - stage:
         name: Build and Test
         identifier: Build_And_Test
         type: CI
         spec:
+          cloneCodebase: true
           execution:
             steps:
               - step:
