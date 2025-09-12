@@ -1,10 +1,10 @@
 package com.example.tests;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
@@ -12,6 +12,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.Duration;
 import java.util.List;
 
@@ -19,13 +21,29 @@ public class GoogleSearchTest {
     private WebDriver driver;
     private WebDriverWait wait;
 
+    // 🔑 Hardcoded LambdaTest credentials
+    private String username = "harshc";
+    private String accessKey = "LT_88k1bI6lm83G4JpruXAGqLXZze0X4jprV7hYS68o1UDweyA";
+
     @BeforeClass
-    public void setUp() {
-        WebDriverManager.chromedriver().setup();
-        driver = new ChromeDriver();
+    public void setUp() throws MalformedURLException {
+        // ✅ Define browser + OS
+        DesiredCapabilities caps = new DesiredCapabilities();
+        caps.setCapability("browserName", "Chrome");
+        caps.setCapability("browserVersion", "latest");
+        caps.setCapability("platformName", "Windows 11");
+
+        // ✅ Optional: Meta info for LT Dashboard
+        caps.setCapability("project", "Harness-LT-Demo");
+        caps.setCapability("build", "Build_01");
+        caps.setCapability("name", "Google Search Test");
+
+        // ✅ LambdaTest Grid URL with hardcoded creds
+        String gridURL = "https://" + username + ":" + accessKey + "@hub.lambdatest.com/wd/hub";
+
+        driver = new RemoteWebDriver(new URL(gridURL), caps);
         driver.manage().window().maximize();
 
-        // ✅ Explicit wait (10 seconds)
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
@@ -39,10 +57,9 @@ public class GoogleSearchTest {
         searchBox.sendKeys("Harness CI");
         searchBox.submit();
 
-        // ✅ Wait for results to load
+        // ✅ Wait for results
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("h3")));
 
-        // ✅ Collect all results
         List<WebElement> results = driver.findElements(By.cssSelector("h3"));
 
         boolean found = results.stream()

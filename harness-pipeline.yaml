@@ -28,7 +28,10 @@ pipeline:
                     image: maven:3.9.5-eclipse-temurin-17
                     shell: Sh
                     command: |
-                      mvn clean test
+                      mvn clean test -DsuiteXmlFile=testng.xml
+                  cache:
+                    paths:
+                      - ~/.m2/repository
 
               - step:
                   type: Test
