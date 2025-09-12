@@ -1,7 +1,7 @@
 pipeline:
-  name: Harness Selenium Tests
-  identifier: harness_selenium_tests
-  projectIdentifier: YOUR_PROJECT
+  name: harness-pipeline
+  identifier: harness_pipeline
+  projectIdentifier: default_project         # 🔹 replace with your real projectIdentifier
   orgIdentifier: default
   tags: {}
   stages:
@@ -17,6 +17,18 @@ pipeline:
                   name: Maven Tests
                   identifier: Maven_Tests
                   spec:
+                    image: maven:3.9.5-eclipse-temurin-17
                     shell: Sh
                     command: |
                       mvn clean test
+
+              - step:
+                  type: Test
+                  name: Publish Test Reports
+                  identifier: Publish_Test_Reports
+                  spec:
+                    reports:
+                      type: JUnit
+                      spec:
+                        paths:
+                          - target/surefire-reports/*.xml
