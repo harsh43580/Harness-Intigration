@@ -1,0 +1,48 @@
+pipeline:
+  name: harness-pipeline
+  identifier: harness_pipeline
+  projectIdentifier: Selenium-Project
+  orgIdentifier: default
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: harsh43580           
+        repoName: Harness-Intigration      
+        build: <+input>                     
+
+  stages:
+    - stage:
+        name: Build and Test
+        identifier: Build_And_Test
+        type: CI
+        spec:
+          cloneCodebase: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Maven Tests
+                  identifier: Maven_Tests
+                  spec:
+                    image: maven:3.9.5-eclipse-temurin-17
+                    shell: Sh
+                    command: |
+                      mvn clean test -DsuiteXmlFile=testng.xml
+                    envVariables:
+                      LT_USERNAME: <+secrets.getValue("LT_USERNAME")>
+                      LT_ACCESS_KEY: <+secrets.getValue("LT_ACCESS_KEY")>
+                    reports:
+                      type: JUnit
+                      spec:
+                        paths:
+                          - target/surefire-reports/*.xml
+                  cache:
+                    paths:
+                      - ~/.m2/repository
