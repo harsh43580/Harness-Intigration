@@ -23,6 +23,14 @@
       <artifactId>selenium-java</artifactId>
       <version>4.25.0</version>
     </dependency>
+
+    <!-- Load .env for local test credentials -->
+    <dependency>
+      <groupId>io.github.cdimascio</groupId>
+      <artifactId>dotenv-java</artifactId>
+      <version>3.2.0</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

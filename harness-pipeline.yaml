@@ -1,7 +1,7 @@
 pipeline:
   name: harness-pipeline
   identifier: harness_pipeline
-  projectIdentifier: default_project        
+  projectIdentifier: Selenium-Project
   orgIdentifier: default
   tags: {}
   properties:
@@ -18,6 +18,12 @@ pipeline:
         type: CI
         spec:
           cloneCodebase: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
           execution:
             steps:
               - step:
@@ -29,17 +35,14 @@ pipeline:
                     shell: Sh
                     command: |
                       mvn clean test -DsuiteXmlFile=testng.xml
-                  cache:
-                    paths:
-                      - ~/.m2/repository
-
-              - step:
-                  type: Test
-                  name: Publish Test Reports
-                  identifier: Publish_Test_Reports
-                  spec:
+                    envVariables:
+                      LT_USERNAME: <+secrets.getValue("LT_USERNAME")>
+                      LT_ACCESS_KEY: <+secrets.getValue("LT_ACCESS_KEY")>
                     reports:
                       type: JUnit
                       spec:
                         paths:
                           - target/surefire-reports/*.xml
+                  cache:
+                    paths:
+                      - ~/.m2/repository

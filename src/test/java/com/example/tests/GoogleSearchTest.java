@@ -1,5 +1,6 @@
 package com.example.tests;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -21,24 +22,21 @@ public class GoogleSearchTest {
     private WebDriver driver;
     private WebDriverWait wait;
 
-    // 🔑 Hardcoded LambdaTest credentials
-    private String username = "harshc";
-    private String accessKey = "LT_88k1bI6lm83G4JpruXAGqLXZze0X4jprV7hYS68o1UDweyA";
-
     @BeforeClass
     public void setUp() throws MalformedURLException {
-        // ✅ Define browser + OS
+        Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
+        String username = requiredSecret(dotenv, "LT_USERNAME");
+        String accessKey = requiredSecret(dotenv, "LT_ACCESS_KEY");
+
         DesiredCapabilities caps = new DesiredCapabilities();
         caps.setCapability("browserName", "Chrome");
         caps.setCapability("browserVersion", "latest");
         caps.setCapability("platformName", "Windows 11");
 
-        // ✅ Optional: Meta info for LT Dashboard
         caps.setCapability("project", "Harness-LT-Demo");
         caps.setCapability("build", "Build_01");
         caps.setCapability("name", "Google Search Test");
 
-        // ✅ LambdaTest Grid URL with hardcoded creds
         String gridURL = "https://" + username + ":" + accessKey + "@hub.lambdatest.com/wd/hub";
 
         driver = new RemoteWebDriver(new URL(gridURL), caps);
@@ -57,7 +55,6 @@ public class GoogleSearchTest {
         searchBox.sendKeys("Harness CI");
         searchBox.submit();
 
-        // ✅ Wait for results
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("h3")));
 
         List<WebElement> results = driver.findElements(By.cssSelector("h3"));
@@ -75,5 +72,18 @@ public class GoogleSearchTest {
         if (driver != null) {
             driver.quit();
         }
+    }
+
+    private static String requiredSecret(Dotenv dotenv, String key) {
+        String fromEnv = System.getenv(key);
+        if (fromEnv != null && !fromEnv.isBlank()) {
+            return fromEnv;
+        }
+        String fromFile = dotenv.get(key);
+        if (fromFile != null && !fromFile.isBlank()) {
+            return fromFile;
+        }
+        throw new IllegalStateException(
+                "Missing " + key + ". Set it in the environment or in a .env file at the project root.");
     }
 }
